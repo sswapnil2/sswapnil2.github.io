@@ -50,27 +50,22 @@ const projects = [
 
   <section class="section">
     <h2>What I Do</h2>
-    <p>
-      Currently leading a team of 8 engineers at <strong>CleverTap</strong>, responsible for
-      messaging, inbox, recommendations, and reminders platforms. My work has driven
-      <strong>$500K+</strong> in direct revenue and shipped products handling
-      <strong>~400M messages/month</strong>.
-    </p>
-    <p>
-      I specialize in distributed systems, event-driven architectures, and building
-      extensible platforms that scale. I'm passionate about mentoring engineers and
-      establishing best practices that reduce delivery time across organizations.
-    </p>
+    <p>Currently at <strong>CleverTap</strong>, where I:</p>
+    <ul class="work-highlights">
+      <li>Lead a team of 8 engineers building messaging and engagement platforms</li>
+      <li>Own the architecture for inbox, recommendations, and reminders systems</li>
+      <li>Ship products handling ~400M messages/month</li>
+      <li>Design event-driven systems using Kafka, Redis, and PostgreSQL</li>
+    </ul>
 
     <div class="expertise">
-      <span class="expertise-item">Distributed Systems</span>
-      <span class="expertise-item">System Design</span>
-      <span class="expertise-item">Java & Spring Boot</span>
+      <span class="expertise-item">Java</span>
+      <span class="expertise-item">Spring Boot</span>
       <span class="expertise-item">Kafka</span>
       <span class="expertise-item">Redis</span>
       <span class="expertise-item">PostgreSQL</span>
       <span class="expertise-item">AWS</span>
-      <span class="expertise-item">MongoDB</span>
+      <span class="expertise-item">System Design</span>
     </div>
   </section>
 
@@ -205,6 +200,26 @@ const projects = [
   .section-intro {
     color: var(--color-text-muted);
     margin-bottom: var(--spacing-lg);
+  }
+
+  .work-highlights {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-md) 0;
+  }
+
+  .work-highlights li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text-muted);
+  }
+
+  .work-highlights li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
   }
 
   .expertise {
