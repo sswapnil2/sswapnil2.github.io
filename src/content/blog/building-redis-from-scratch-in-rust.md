@@ -1,11 +1,11 @@
 ---
 title: 'Building Redis from Scratch in Rust'
-description: 'A deep dive into implementing a Redis clone in Rust - understanding the RESP protocol, event loops, and concurrent connection handling.'
+description: 'A deep dive into implementing a Redis clone in Rust - understanding the RESP protocol and concurrent connection handling.'
 date: 2026-01-18
 tags: ['rust', 'redis', 'systems-programming', 'networking']
 ---
 
-I recently built a Redis clone from scratch in Rust as part of the [CodeCrafters](https://codecrafters.io) challenge. It was an incredibly rewarding experience that taught me a lot about network programming, protocol design, and Rust's ownership model. In this post, I'll walk you through the internals of Redis, the RESP protocol, and how event loops handle concurrent connections.
+I recently built a Redis clone from scratch in Rust as part of the [CodeCrafters](https://codecrafters.io) challenge. It was an incredibly rewarding experience that taught me a lot about network programming, protocol design, and Rust's ownership model. In this post, I'll walk you through the internals of Redis, the RESP protocol, and how to handle concurrent connections.
 
 ## Why Build Redis?
 
@@ -154,9 +154,23 @@ Breaking it down:
 - `$3\r\nfoo\r\n` → Bulk string "foo"
 - `$3\r\nbar\r\n` → Bulk string "bar"
 
-## The Event Loop
+## Handling Concurrent Connections
 
-Real Redis uses a single-threaded event loop with I/O multiplexing (epoll on Linux, kqueue on macOS). For simplicity, my implementation uses thread-per-connection, but the concepts translate.
+### How Real Redis Does It: Event Loop
+
+Real Redis uses a **single-threaded event loop** with I/O multiplexing (epoll on Linux, kqueue on macOS). This means one thread handles thousands of connections by:
+
+1. Monitoring all sockets for readiness (data available to read/write)
+2. Processing ready sockets one at a time
+3. Never blocking on any single connection
+
+This is incredibly efficient because there's no thread context switching overhead and no need for locks on shared data.
+
+### My Approach: Thread-Per-Connection
+
+For simplicity, my implementation uses a **thread-per-connection** model instead. Each new client connection spawns a dedicated thread. This is easier to understand and implement, though less scalable than an event loop.
+
+Here's how it works:
 
 ### Main Server Loop
 
@@ -180,9 +194,11 @@ fn main() {
 ```
 
 Key points:
-- **Shared state**: The `Store` is wrapped in `Arc<Mutex<>>` for thread-safe sharing
-- **Connection handling**: Each client gets its own thread
-- **Ownership transfer**: The `move` closure takes ownership of `app_state` and `stream`
+- **Shared state**: The `Store` is wrapped in `Arc<Mutex<>>` for thread-safe sharing across threads
+- **Thread spawning**: `thread::spawn` creates a new OS thread for each connection
+- **Ownership transfer**: The `move` closure takes ownership of `app_state` and `stream`, moving them into the new thread
+
+The trade-off here is clear: this approach is simple but spawning threads is expensive. With thousands of connections, you'd run into OS limits. That's why production Redis uses an event loop—but for learning purposes, thread-per-connection keeps the code approachable.
 
 ### Client Handler
 
@@ -375,7 +391,7 @@ pub fn test_set_and_get() {
 
 This implementation covers the basics, but there's so much more to explore:
 
-- **Async I/O with tokio** — Replace threads with async for better scalability
+- **Event loop with async I/O** — Replace thread-per-connection with tokio or mio for true Redis-like scalability
 - **More commands** — INCR, LPUSH, HSET, etc.
 - **Persistence** — RDB snapshots or AOF logging
 - **Pub/Sub** — Real-time messaging
