@@ -31,15 +31,26 @@ const projects = [
 
 <BaseLayout title="Swapnil | Portfolio">
   <section id="about" class="section">
-    <h1>Hi, I'm Swapnil</h1>
+    <h1>Hi, I'm Swapnil Shindemeshram</h1>
     <p class="intro">
-      I'm a software engineer passionate about building great products.
-      I write about technology, software development, and my experiences in tech.
+      Team Lead (Backend Engineering) with 7+ years of experience leading cross-functional teams to build and scale core platforms serving ~300M MAU.
     </p>
     <p>
-      Welcome to my corner of the internet where I share my projects, thoughts, and learnings.
-      Feel free to explore my work and get in touch if you'd like to collaborate.
+      I specialize in distributed systems, microservices, and event-driven architectures. Currently at <strong>CleverTap</strong>, I lead a team of 8 engineers responsible for messaging, inbox, recommendations, and reminders platforms.
     </p>
+    <p>
+      My work has driven measurable business impact including $500K+ revenue through the Reminders platform and shipping Unified Inbox at ~400M messages/month.
+    </p>
+    <div class="skills">
+      <span class="skill">Java</span>
+      <span class="skill">Spring Boot</span>
+      <span class="skill">Kafka</span>
+      <span class="skill">Redis</span>
+      <span class="skill">PostgreSQL</span>
+      <span class="skill">AWS</span>
+      <span class="skill">MongoDB</span>
+      <span class="skill">System Design</span>
+    </div>
   </section>
 
   <section id="projects" class="section">
@@ -95,10 +106,9 @@ const projects = [
       or just having a chat about technology.
     </p>
     <div class="contact-links">
-      <a href="mailto:hello@example.com" class="contact-link">Email</a>
+      <a href="mailto:smeshram258@gmail.com" class="contact-link">Email</a>
       <a href="https://github.com/sswapnil2" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>
-      <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>
-      <a href="https://twitter.com/yourhandle" target="_blank" rel="noopener noreferrer" class="contact-link">Twitter</a>
+      <a href="https://linkedin.com/in/swapnil-shindemeshram" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>
     </div>
   </section>
 </BaseLayout>
@@ -116,6 +126,22 @@ const projects = [
     font-size: 1.25rem;
     color: var(--color-text);
     margin-bottom: var(--spacing-md);
+  }
+
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+  }
+
+  .skill {
+    background: var(--color-accent);
+    color: white;
+    padding: 0.3em 0.8em;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 
   .projects-grid {
