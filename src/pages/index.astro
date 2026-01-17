@@ -9,64 +9,108 @@ const posts = (await getCollection('blog'))
 
 const projects = [
   {
-    title: 'Project One',
-    description: 'A brief description of what this project does and the technologies used.',
-    link: 'https://github.com/sswapnil2',
-    tags: ['TypeScript', 'React']
+    title: 'Django Quiz App',
+    description: 'A Django-based quiz application for multiple choice questions. Features user authentication, quiz management, and score tracking.',
+    url: 'https://github.com/sswapnil2/django-quiz-app',
+    language: 'Python',
+    stars: 123,
+    topics: ['Django', 'Python', 'Quiz']
   },
   {
-    title: 'Project Two',
-    description: 'Another project showcase with a focus on solving a specific problem.',
-    link: 'https://github.com/sswapnil2',
-    tags: ['Node.js', 'PostgreSQL']
+    title: 'Redis in Rust',
+    description: 'A Redis implementation built from scratch in Rust. Learning project exploring systems programming and database internals.',
+    url: 'https://github.com/sswapnil2/redis-rust',
+    language: 'Rust',
+    stars: 1,
+    topics: ['Rust', 'Redis', 'Systems']
   },
   {
-    title: 'Project Three',
-    description: 'Description of the project, its purpose and key features.',
-    link: 'https://github.com/sswapnil2',
-    tags: ['Python', 'FastAPI']
+    title: 'Text Summarization',
+    description: 'Text summarization using extractive methods with a Flask web interface. Implements NLP techniques for automatic document summarization.',
+    url: 'https://github.com/sswapnil2/Text-Summarization',
+    language: 'Python',
+    stars: 2,
+    topics: ['NLP', 'Flask', 'ML']
   }
 ];
 ---
 
-<BaseLayout title="Swapnil | Portfolio">
-  <section id="about" class="section">
-    <h1>Hi, I'm Swapnil Shindemeshram</h1>
+<BaseLayout title="Swapnil Shindemeshram">
+  <section id="about" class="section hero">
+    <p class="greeting">Hello, I'm</p>
+    <h1>Swapnil Shindemeshram</h1>
+    <p class="tagline">Team Lead (Backend Engineering) at CleverTap</p>
     <p class="intro">
-      Team Lead (Backend Engineering) with 7+ years of experience leading cross-functional teams to build and scale core platforms serving ~300M MAU.
+      I lead cross-functional teams to build and scale core platforms serving ~300M monthly active users.
+      With 7+ years of experience in distributed systems and microservices, I focus on creating
+      high-impact solutions that drive measurable business outcomes.
+    </p>
+  </section>
+
+  <hr />
+
+  <section class="section">
+    <h2>What I Do</h2>
+    <p>
+      Currently leading a team of 8 engineers at <strong>CleverTap</strong>, responsible for
+      messaging, inbox, recommendations, and reminders platforms. My work has driven
+      <strong>$500K+</strong> in direct revenue and shipped products handling
+      <strong>~400M messages/month</strong>.
     </p>
     <p>
-      I specialize in distributed systems, microservices, and event-driven architectures. Currently at <strong>CleverTap</strong>, I lead a team of 8 engineers responsible for messaging, inbox, recommendations, and reminders platforms.
+      I specialize in distributed systems, event-driven architectures, and building
+      extensible platforms that scale. I'm passionate about mentoring engineers and
+      establishing best practices that reduce delivery time across organizations.
     </p>
-    <p>
-      My work has driven measurable business impact including $500K+ revenue through the Reminders platform and shipping Unified Inbox at ~400M messages/month.
-    </p>
-    <div class="skills">
-      <span class="skill">Java</span>
-      <span class="skill">Spring Boot</span>
-      <span class="skill">Kafka</span>
-      <span class="skill">Redis</span>
-      <span class="skill">PostgreSQL</span>
-      <span class="skill">AWS</span>
-      <span class="skill">MongoDB</span>
-      <span class="skill">System Design</span>
+
+    <div class="expertise">
+      <span class="expertise-item">Distributed Systems</span>
+      <span class="expertise-item">System Design</span>
+      <span class="expertise-item">Java & Spring Boot</span>
+      <span class="expertise-item">Kafka</span>
+      <span class="expertise-item">Redis</span>
+      <span class="expertise-item">PostgreSQL</span>
+      <span class="expertise-item">AWS</span>
+      <span class="expertise-item">MongoDB</span>
     </div>
   </section>
 
+  <hr />
+
   <section id="projects" class="section">
     <h2>Projects</h2>
-    <div class="projects-grid">
+    <p class="section-intro">
+      A selection of side projects and explorations outside of work.
+    </p>
+
+    <div class="projects-list">
       {projects.map(project => (
-        <article class="project-card">
-          <h3>
-            <a href={project.link} target="_blank" rel="noopener noreferrer">
-              {project.title}
-            </a>
-          </h3>
-          <p>{project.description}</p>
-          <div class="project-tags">
-            {project.tags.map(tag => (
-              <span class="tag">{tag}</span>
+        <article class="project">
+          <div class="project-header">
+            <h3>
+              <a href={project.url} target="_blank" rel="noopener noreferrer">
+                {project.title}
+              </a>
+            </h3>
+            <div class="project-meta">
+              <span class="language">
+                <span class="language-dot" style={`background: ${project.language === 'Python' ? '#3572A5' : project.language === 'Rust' ? '#dea584' : '#666'}`}></span>
+                {project.language}
+              </span>
+              {project.stars > 0 && (
+                <span class="stars">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
+                  </svg>
+                  {project.stars}
+                </span>
+              )}
+            </div>
+          </div>
+          <p class="project-description">{project.description}</p>
+          <div class="project-topics">
+            {project.topics.map(topic => (
+              <span class="topic">{topic}</span>
             ))}
           </div>
         </article>
@@ -74,194 +118,276 @@ const projects = [
     </div>
   </section>
 
+  <hr />
+
   <section class="section">
-    <h2>Latest Posts</h2>
+    <h2>Writing</h2>
+    <p class="section-intro">
+      Thoughts on software engineering, distributed systems, and building products at scale.
+    </p>
+
     {posts.length > 0 ? (
-      <ul class="posts-list">
+      <div class="posts-list">
         {posts.map(post => (
-          <li class="post-item">
+          <article class="post-preview">
             <a href={`/blog/${post.slug}`}>
-              <span class="post-title">{post.data.title}</span>
-              <span class="post-date">
+              <h3>{post.data.title}</h3>
+              <p class="post-excerpt">{post.data.description}</p>
+              <time datetime={post.data.date.toISOString()}>
                 {post.data.date.toLocaleDateString('en-US', {
                   year: 'numeric',
-                  month: 'short',
+                  month: 'long',
                   day: 'numeric'
                 })}
-              </span>
+              </time>
             </a>
-          </li>
+          </article>
         ))}
-      </ul>
+      </div>
     ) : (
-      <p class="text-muted">No posts yet. Check back soon!</p>
+      <p class="text-muted">Coming soon...</p>
     )}
-    <a href="/blog" class="view-all">View all posts &rarr;</a>
+
+    <a href="/blog" class="view-all">View all posts →</a>
   </section>
+
+  <hr />
 
   <section id="contact" class="section">
     <h2>Get in Touch</h2>
     <p>
-      I'm always open to discussing new opportunities, interesting projects,
-      or just having a chat about technology.
+      I'm always interested in hearing about new opportunities, interesting projects,
+      or just connecting with fellow engineers. Feel free to reach out.
     </p>
-    <div class="contact-links">
-      <a href="mailto:smeshram258@gmail.com" class="contact-link">Email</a>
-      <a href="https://github.com/sswapnil2" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>
-      <a href="https://linkedin.com/in/swapnil-shindemeshram" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>
-    </div>
+    <p>
+      <a href="mailto:smeshram258@gmail.com">smeshram258@gmail.com</a>
+    </p>
   </section>
 </BaseLayout>
 
 <style>
   .section {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .hero {
+    text-align: center;
     padding: var(--spacing-xl) 0;
   }
 
-  .section:first-child {
-    padding-top: var(--spacing-lg);
-  }
-
-  .intro {
-    font-size: 1.25rem;
-    color: var(--color-text);
-    margin-bottom: var(--spacing-md);
-  }
-
-  .skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-xs);
-    margin-top: var(--spacing-md);
-  }
-
-  .skill {
-    background: var(--color-accent);
-    color: white;
-    padding: 0.3em 0.8em;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-
-  .projects-grid {
-    display: grid;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-md);
-  }
-
-  .project-card {
-    padding: var(--spacing-md);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    transition: border-color 0.2s;
-  }
-
-  .project-card:hover {
-    border-color: var(--color-accent);
-  }
-
-  .project-card h3 {
-    margin: 0 0 var(--spacing-xs) 0;
-  }
-
-  .project-card h3 a {
-    color: var(--color-text);
-  }
-
-  .project-card h3 a:hover {
-    color: var(--color-accent);
-    text-decoration: none;
-  }
-
-  .project-card p {
+  .greeting {
+    font-family: var(--font-sans);
     color: var(--color-text-muted);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .hero h1 {
+    font-size: 3rem;
     margin-bottom: var(--spacing-sm);
   }
 
-  .project-tags {
-    display: flex;
-    gap: var(--spacing-xs);
-    flex-wrap: wrap;
+  .tagline {
+    font-family: var(--font-sans);
+    color: var(--color-accent);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: var(--spacing-lg);
   }
 
-  .tag {
-    background: #f5f5f5;
-    padding: 0.2em 0.6em;
-    border-radius: 4px;
-    font-size: 0.8rem;
+  .intro {
+    max-width: 540px;
+    margin: 0 auto;
     color: var(--color-text-muted);
   }
 
-  .posts-list {
-    list-style: none;
-    padding: 0;
-    margin: var(--spacing-md) 0;
+  .section-intro {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-lg);
   }
 
-  .post-item {
-    margin-bottom: 0;
+  .expertise {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: var(--spacing-lg);
   }
 
-  .post-item a {
+  .expertise-item {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    border: 1px solid var(--color-border);
+  }
+
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .project {
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .project:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .project-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    padding: var(--spacing-sm) 0;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
+    align-items: flex-start;
     gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
   }
 
-  .post-item a:hover {
+  .project h3 {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+
+  .project h3 a {
+    color: var(--color-text);
     text-decoration: none;
   }
 
-  .post-item a:hover .post-title {
+  .project h3 a:hover {
     color: var(--color-accent);
   }
 
-  .post-title {
+  .project-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  .language {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .language-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .stars {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .stars svg {
+    color: var(--color-text-light);
+  }
+
+  .project-description {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.6;
+  }
+
+  .project-topics {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .topic {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    background: rgba(26, 137, 23, 0.08);
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .post-preview {
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .post-preview:first-child {
+    padding-top: 0;
+  }
+
+  .post-preview a {
+    text-decoration: none;
+    display: block;
+  }
+
+  .post-preview h3 {
+    font-size: 1.25rem;
+    margin: 0 0 var(--spacing-xs);
+    color: var(--color-text);
     transition: color 0.2s;
   }
 
-  .post-date {
+  .post-preview:hover h3 {
+    color: var(--color-accent);
+  }
+
+  .post-excerpt {
     color: var(--color-text-muted);
-    font-size: 0.875rem;
-    white-space: nowrap;
+    margin-bottom: var(--spacing-xs);
+    line-height: 1.6;
+  }
+
+  .post-preview time {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    color: var(--color-text-light);
   }
 
   .view-all {
     display: inline-block;
-    margin-top: var(--spacing-sm);
-    font-size: 0.9rem;
-  }
-
-  .contact-links {
-    display: flex;
-    gap: var(--spacing-md);
-    flex-wrap: wrap;
     margin-top: var(--spacing-md);
-  }
-
-  .contact-link {
-    padding: var(--spacing-xs) var(--spacing-md);
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    color: var(--color-text);
-    transition: all 0.2s;
-  }
-
-  .contact-link:hover {
-    border-color: var(--color-accent);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
     color: var(--color-accent);
     text-decoration: none;
   }
 
+  .view-all:hover {
+    text-decoration: underline;
+  }
+
+  hr {
+    margin: var(--spacing-lg) 0;
+  }
+
   @media (max-width: 600px) {
-    .post-item a {
+    .hero h1 {
+      font-size: 2.25rem;
+    }
+
+    .project-header {
       flex-direction: column;
       gap: var(--spacing-xs);
+    }
+
+    .project-meta {
+      order: -1;
     }
   }
 </style>
