@@ -1,0 +1,241 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const projects = [
+  {
+    title: 'Project One',
+    description: 'A brief description of what this project does and the technologies used.',
+    link: 'https://github.com/sswapnil2',
+    tags: ['TypeScript', 'React']
+  },
+  {
+    title: 'Project Two',
+    description: 'Another project showcase with a focus on solving a specific problem.',
+    link: 'https://github.com/sswapnil2',
+    tags: ['Node.js', 'PostgreSQL']
+  },
+  {
+    title: 'Project Three',
+    description: 'Description of the project, its purpose and key features.',
+    link: 'https://github.com/sswapnil2',
+    tags: ['Python', 'FastAPI']
+  }
+];
+---
+
+<BaseLayout title="Swapnil | Portfolio">
+  <section id="about" class="section">
+    <h1>Hi, I'm Swapnil</h1>
+    <p class="intro">
+      I'm a software engineer passionate about building great products.
+      I write about technology, software development, and my experiences in tech.
+    </p>
+    <p>
+      Welcome to my corner of the internet where I share my projects, thoughts, and learnings.
+      Feel free to explore my work and get in touch if you'd like to collaborate.
+    </p>
+  </section>
+
+  <section id="projects" class="section">
+    <h2>Projects</h2>
+    <div class="projects-grid">
+      {projects.map(project => (
+        <article class="project-card">
+          <h3>
+            <a href={project.link} target="_blank" rel="noopener noreferrer">
+              {project.title}
+            </a>
+          </h3>
+          <p>{project.description}</p>
+          <div class="project-tags">
+            {project.tags.map(tag => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Latest Posts</h2>
+    {posts.length > 0 ? (
+      <ul class="posts-list">
+        {posts.map(post => (
+          <li class="post-item">
+            <a href={`/blog/${post.slug}`}>
+              <span class="post-title">{post.data.title}</span>
+              <span class="post-date">
+                {post.data.date.toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-muted">No posts yet. Check back soon!</p>
+    )}
+    <a href="/blog" class="view-all">View all posts &rarr;</a>
+  </section>
+
+  <section id="contact" class="section">
+    <h2>Get in Touch</h2>
+    <p>
+      I'm always open to discussing new opportunities, interesting projects,
+      or just having a chat about technology.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:hello@example.com" class="contact-link">Email</a>
+      <a href="https://github.com/sswapnil2" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>
+      <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>
+      <a href="https://twitter.com/yourhandle" target="_blank" rel="noopener noreferrer" class="contact-link">Twitter</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section {
+    padding: var(--spacing-xl) 0;
+  }
+
+  .section:first-child {
+    padding-top: var(--spacing-lg);
+  }
+
+  .intro {
+    font-size: 1.25rem;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .projects-grid {
+    display: grid;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+  }
+
+  .project-card {
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    transition: border-color 0.2s;
+  }
+
+  .project-card:hover {
+    border-color: var(--color-accent);
+  }
+
+  .project-card h3 {
+    margin: 0 0 var(--spacing-xs) 0;
+  }
+
+  .project-card h3 a {
+    color: var(--color-text);
+  }
+
+  .project-card h3 a:hover {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .project-card p {
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .project-tags {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: #f5f5f5;
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+
+  .posts-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--spacing-md) 0;
+  }
+
+  .post-item {
+    margin-bottom: 0;
+  }
+
+  .post-item a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    gap: var(--spacing-sm);
+  }
+
+  .post-item a:hover {
+    text-decoration: none;
+  }
+
+  .post-item a:hover .post-title {
+    color: var(--color-accent);
+  }
+
+  .post-title {
+    transition: color 0.2s;
+  }
+
+  .post-date {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .view-all {
+    display: inline-block;
+    margin-top: var(--spacing-sm);
+    font-size: 0.9rem;
+  }
+
+  .contact-links {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-md);
+  }
+
+  .contact-link {
+    padding: var(--spacing-xs) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text);
+    transition: all 0.2s;
+  }
+
+  .contact-link:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  @media (max-width: 600px) {
+    .post-item a {
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+  }
+</style>
