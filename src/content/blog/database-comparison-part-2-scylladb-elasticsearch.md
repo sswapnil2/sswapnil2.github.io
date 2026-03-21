@@ -61,10 +61,10 @@ CREATE TABLE products (
 );
 
 -- Separate table optimized for inventory (high-write workload)
+-- Note: Counter tables can ONLY have counter columns + primary key columns
 CREATE TABLE inventory (
   product_id TEXT PRIMARY KEY,
-  quantity COUNTER,  -- Special counter type for atomic increments
-  last_updated TIMESTAMP
+  quantity COUNTER  -- Special counter type for atomic increments
 );
 
 -- Materialized view for category queries
@@ -179,11 +179,12 @@ WHERE product_id = 'prod_12345';
 ```
 
 **Note**: Counter columns have limitations:
-- Can't be part of a larger row (must be in dedicated table)
-- Can't be reset (only increment/decrement)
-- Eventual consistency (not strongly consistent)
+- All non-primary-key columns in a counter table must be counters (no mixing with regular columns)
+- Can't be set to a specific value — only increment/decrement from an implicit starting value of 0
+- Updates are **not idempotent** — if a write fails and the client retries, the counter may be incremented twice
+- Once deleted, counter values should not be reused (behavior is undefined)
 
-For e-commerce, this is usually acceptable—inventory is eventually consistent, and the speed trade-off is worth it.
+For e-commerce, these trade-offs are usually acceptable — the extreme throughput outweighs the edge cases, and you can mitigate double-counting with application-level deduplication.
 
 #### Stock Status Toggle
 
@@ -216,15 +217,17 @@ ScyllaDB scales **linearly** by adding nodes. This is its superpower.
 
 **Starting cluster** (100M products):
 ```
-3 nodes × 3 replicas = 9 total nodes
+6 nodes with RF=3 (each piece of data stored on 3 of the 6 nodes)
 - Each node: i3.2xlarge (8 vCPUs, 61GB RAM, 1.9TB NVMe SSD)
-- Total capacity: ~5.7TB (with replication)
+- Effective capacity: ~3.8TB (6 × 1.9TB / RF 3)
 - Write throughput: ~150,000 writes/sec
 ```
 
+> **Note**: Replication factor (RF) doesn't multiply the node count — it determines how many of the existing nodes hold a copy of each piece of data. RF=3 with 6 nodes means each row is stored on 3 out of 6 nodes.
+
 **Scaling up** (500M products, 10x traffic):
 ```
-6 nodes × 3 replicas = 18 total nodes
+12 nodes with RF=3
 - Write throughput: ~300,000 writes/sec
 - Linear scaling - double nodes, double throughput
 ```
@@ -236,8 +239,7 @@ ScyllaDB scales **linearly** by adding nodes. This is its superpower.
 For 100M products with high write volume:
 
 **Cluster Configuration**:
-- 6 nodes (i3.2xlarge equivalent)
-- 3x replication factor
+- 6 nodes (i3.2xlarge equivalent) with RF=3
 - Multi-AZ deployment
 
 **Monthly Cost Breakdown**:

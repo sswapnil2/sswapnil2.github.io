@@ -258,11 +258,11 @@ changeStream.on('change', async (change) => {
 
 | Component | Monthly Cost |
 |-----------|--------------|
-| **MongoDB Atlas** (M50-M60) | $1,500-$3,000 |
+| **MongoDB Atlas** (M50, 3-node replica set) | $4,650-$4,800 |
 | **Elasticsearch** (3 nodes) | $1,600-$1,700 |
-| **Total** | **$3,100-$4,700/month** |
+| **Total** | **$6,250-$6,500/month** |
 
-**3-year TCO**: $111,600-$169,200
+**3-year TCO**: $225,000-$234,000
 
 ### Pros and Cons
 
@@ -274,8 +274,8 @@ changeStream.on('change', async (change) => {
 
 **Cons**:
 - ❌ Weaker consistency guarantees than PostgreSQL
-- ❌ Higher cost than PostgreSQL + Elasticsearch
-- ❌ No ACID transactions across collections (until MongoDB 4.0+)
+- ❌ Significantly higher cost than PostgreSQL + Elasticsearch
+- ❌ No ACID transactions across collections (multi-document transactions added in MongoDB 4.0+, but with performance overhead)
 
 **When to use**: Rapidly evolving product schemas, new product types frequently added.
 
@@ -335,20 +335,27 @@ CREATE TABLE products (
 
 **ScyllaDB** (real-time inventory):
 ```cql
+-- Counter table: only counter columns + primary key allowed
 CREATE TABLE inventory (
   product_id TEXT PRIMARY KEY,
-  quantity COUNTER,
+  quantity COUNTER
+);
+
+-- Separate table for stock metadata (non-counter)
+CREATE TABLE inventory_status (
+  product_id TEXT PRIMARY KEY,
   in_stock BOOLEAN,
   last_updated TIMESTAMP
 );
 
--- Hot products table (for flash sales)
+-- Hot products table for flash sales (counter-only)
 CREATE TABLE hot_products (
   product_id TEXT PRIMARY KEY,
   quantity COUNTER,
-  reserved COUNTER,  -- Items in shopping carts
-  available COUNTER  -- quantity - reserved
+  reserved COUNTER  -- Items in shopping carts
 );
+-- Note: "available" must be computed at the application layer
+-- as (quantity - reserved), not stored as a counter
 ```
 
 **Inventory update flow**:
@@ -410,9 +417,9 @@ async function decrementInventory(productId, amount) {
 
 | Database | Monthly Cost | 3-Year TCO | Cost per 1M Writes | Best For |
 |----------|--------------|------------|---------------------|----------|
-| **PostgreSQL** | $800-$2,000 | $28,800-$72,000 | $0.20-$0.50 | General purpose, ACID |
-| **MongoDB** | $1,500-$3,000 | $54,000-$108,000 | $0.50-$1.00 | Flexible schemas |
-| **ScyllaDB** | $3,000-$3,300 | $108,000-$118,800 | $0.10-$0.20 | Extreme writes |
+| **PostgreSQL** | $870-$1,870 | $31,300-$67,300 | $0.20-$0.50 | General purpose, ACID |
+| **MongoDB** | $4,650-$4,800 | $167,000-$173,000 | $0.50-$1.00 | Flexible schemas |
+| **ScyllaDB** | $3,100-$3,300 | $111,600-$118,800 | $0.10-$0.20 | Extreme writes |
 | **Elasticsearch** | $1,600-$1,700 | $57,600-$61,200 | N/A | Search only |
 
 ### Hybrid Architecture Costs
@@ -420,7 +427,7 @@ async function decrementInventory(productId, amount) {
 | Architecture | Monthly Cost | 3-Year TCO | Max Writes/Sec | Complexity |
 |--------------|--------------|------------|----------------|------------|
 | **PostgreSQL + ES** | $2,600-$3,300 | $93,600-$118,800 | 5,000 | Low-Medium |
-| **MongoDB + ES** | $3,100-$4,700 | $111,600-$169,200 | 10,000 | Medium |
+| **MongoDB + ES** | $6,250-$6,500 | $225,000-$234,000 | 10,000 | Medium |
 | **PG + Scylla + ES** | $5,300-$6,100 | $190,800-$219,600 | 100,000+ | High |
 
 ### Cost Optimization Tips
@@ -538,7 +545,7 @@ After analyzing MongoDB, PostgreSQL, ScyllaDB, and Elasticsearch for a 100 milli
 - Best balance of cost, performance, and complexity
 
 ### For Rapidly Evolving Schemas
-**MongoDB + Elasticsearch** ($3,100-$4,700/month)
+**MongoDB + Elasticsearch** ($6,250-$6,500/month)
 - MongoDB: Flexible product catalog
 - Elasticsearch: Search layer
 - Best for frequent schema changes
