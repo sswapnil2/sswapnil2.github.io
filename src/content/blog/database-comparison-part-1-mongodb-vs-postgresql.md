@@ -254,14 +254,16 @@ For 100M documents (~200GB data + indexes):
 
 **Recommended Tier**: M50 or M60 (dedicated cluster)
 
-**Monthly Cost Breakdown**:
-- **Compute**: $1,200 (M50: 32GB RAM, 8 vCPUs)
+**Monthly Cost Breakdown** (3-node replica set, AWS us-east-1):
+- **Compute**: ~$4,300 (M50: 32GB RAM per node × 3 nodes)
 - **Storage**: $200 (200GB at $0.25/GB-month)
 - **Backups**: $100 (automated snapshots)
 - **Data transfer**: $50-$200 (variable)
-- **Total**: **$1,550-$1,700/month**
+- **Total**: **~$4,650-$4,800/month**
 
-**3-year TCO**: ~$55,800-$61,200
+**3-year TCO**: ~$167,000-$173,000 (before reserved capacity discounts)
+
+> **Note**: Atlas always deploys a minimum 3-node replica set. Verify current pricing with the [Atlas Pricing Calculator](https://www.mongodb.com/pricing/calculator) — rates vary by region and cloud provider.
 
 **Cost optimization tips**:
 - Use online archive for old/inactive products ($0.025/GB vs $0.25/GB)
@@ -456,21 +458,25 @@ WHERE id = 'prod_12345'
 RETURNING *;
 ```
 
-**Solution 2**: Queue pattern with SKIP LOCKED
+**Solution 2**: `NOWAIT` to fail fast under contention
 ```sql
--- For order processing queues
+-- Fail immediately instead of waiting for the lock
+BEGIN;
+SELECT id FROM products
+WHERE id = 'prod_12345' AND quantity > 0
+FOR UPDATE NOWAIT; -- Throws error if row is locked
+
 UPDATE products
-SET quantity = quantity - 1
-WHERE id = (
-  SELECT id FROM products
-  WHERE id = 'prod_12345' AND quantity > 0
-  FOR UPDATE SKIP LOCKED
-  LIMIT 1
-)
+SET quantity = quantity - 1,
+    updated_at = NOW()
+WHERE id = 'prod_12345'
 RETURNING *;
+COMMIT;
 ```
 
-This skips locked rows, reducing contention in high-concurrency scenarios.
+This avoids blocking — the application catches the lock error and retries, similar to MongoDB's retry pattern. Useful during flash sales where waiting on a lock would spike latency.
+
+> **Note on SKIP LOCKED**: You may see `FOR UPDATE SKIP LOCKED` recommended for this scenario, but it's designed for queue-style workloads where you pick *any* available row from a set. When targeting a specific product ID, there's only one row to lock or skip — so SKIP LOCKED would silently return nothing if the row is locked, which isn't what you want for inventory decrement.
 
 #### Stock Status Toggle
 
@@ -494,7 +500,7 @@ SET price = price * 0.9
 WHERE brand = 'Sony';
 
 -- Efficient, but locks rows during update
--- For very large updates, use batching:
+-- For very large updates, use batching with a cursor approach:
 
 DO $$
 DECLARE
@@ -502,14 +508,19 @@ DECLARE
   affected INT;
 BEGIN
   LOOP
-    UPDATE products
-    SET price = price * 0.9
-    WHERE id IN (
+    WITH batch AS (
       SELECT id FROM products
-      WHERE brand = 'Sony' AND price = price -- Unchanged
+      WHERE brand = 'Sony'
+        AND updated_at < NOW() -- Only rows not yet updated in this run
       LIMIT batch_size
-    );
-    
+      FOR UPDATE SKIP LOCKED
+    )
+    UPDATE products p
+    SET price = price * 0.9,
+        updated_at = NOW()
+    FROM batch
+    WHERE p.id = batch.id;
+
     GET DIAGNOSTICS affected = ROW_COUNT;
     EXIT WHEN affected = 0;
     COMMIT;
@@ -524,7 +535,7 @@ PostgreSQL offers both vertical and horizontal scaling options.
 #### Vertical Scaling (Easiest)
 
 **Amazon Aurora PostgreSQL**:
-- Scales up to 128TB storage (auto-scaling)
+- Scales up to 256 TiB storage (auto-scaling)
 - Instance types up to 768GB RAM (db.r6g.16xlarge)
 - Storage scales in 10GB increments automatically
 
@@ -564,17 +575,17 @@ For 100M rows (~200GB):
 **Recommended Instance**: db.r6g.2xlarge (64GB RAM, 8 vCPUs)
 
 **Monthly Cost Breakdown**:
-- **Compute**: $600 (on-demand pricing)
+- **Compute**: ~$650-$750 (on-demand, varies by region — ~$0.90-$1.04/hr)
 - **Storage**: $100 (200GB at $0.10/GB-month for Aurora Standard)
 - **I/O**: $100-$1,000 (depends on workload)
   - Aurora Standard: $0.20 per 1M requests
   - Aurora I/O-Optimized: No I/O charges, but higher storage ($0.225/GB)
 - **Backups**: $20 (100% of DB size free, additional for longer retention)
-- **Total**: **$820-$1,720/month**
+- **Total**: **$870-$1,870/month**
 
 **When to use Aurora I/O-Optimized**: If I/O costs exceed 25% of total Aurora costs.
 
-**3-year TCO**: ~$29,500-$61,900
+**3-year TCO**: ~$31,300-$67,300
 
 **Cost optimization tips**:
 - Use reserved instances for 40% savings
@@ -622,7 +633,7 @@ For 100M rows (~200GB):
 | **Write Throughput** | ⭐⭐⭐⭐ (5-10K/sec) | ⭐⭐⭐ (2-5K/sec) |
 | **Consistency** | ⭐⭐⭐ (tunable) | ⭐⭐⭐⭐⭐ (ACID) |
 | **Horizontal Scaling** | ⭐⭐⭐⭐⭐ (sharding) | ⭐⭐⭐ (Citus/partitioning) |
-| **Cost (3-year TCO)** | $55K-$61K | $29K-$62K |
+| **Cost (3-year TCO)** | $167K-$173K | $31K-$67K |
 | **Operational Complexity** | ⭐⭐⭐ (medium) | ⭐⭐ (low-medium) |
 
 ### When to Choose MongoDB
